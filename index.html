@@ -233,16 +233,16 @@ body{font-family:Arial,sans-serif;background:#F2F0EC;color:#1A1A1A;padding:1.5re
     <div class="field" id="exchangeDetail" style="display:none">
       <div class="q-label"><span class="q-num">14.</span> What was offered or given? <span class="hint">(select all that apply)</span></div>
       <div class="chip-wrap" id="exchangeWhat">
-        <div class="chip" data-val="Money" onclick="selectChip(this,'exchangeWhat',false)">Money</div>
-        <div class="chip" data-val="Food" onclick="selectChip(this,'exchangeWhat',false)">Food</div>
-        <div class="chip" data-val="Shelter" onclick="selectChip(this,'exchangeWhat',false)">Shelter</div>
-        <div class="chip" data-val="School fees" onclick="selectChip(this,'exchangeWhat',false)">School fees</div>
-        <div class="chip" data-val="Gifts" onclick="selectChip(this,'exchangeWhat',false)">Gifts</div>
-        <div class="chip" data-val="Airtime or phone" onclick="selectChip(this,'exchangeWhat',false)">Airtime or phone</div>
-        <div class="chip" data-val="Transport" onclick="selectChip(this,'exchangeWhat',false)">Transport</div>
-        <div class="chip" data-val="Drugs or alcohol" onclick="selectChip(this,'exchangeWhat',false)">Drugs or alcohol</div>
-        <div class="chip" data-val="Protection" onclick="selectChip(this,'exchangeWhat',false)">Protection</div>
-        <div class="chip" data-val="Employment" onclick="selectChip(this,'exchangeWhat',false)">Employment</div>
+        <div class="chip" data-val="Money" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Money</div>
+        <div class="chip" data-val="Food" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Food</div>
+        <div class="chip" data-val="Shelter" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Shelter</div>
+        <div class="chip" data-val="School fees" onclick="selectChip(this,'exchangeWhat',false);calcScore()">School fees</div>
+        <div class="chip" data-val="Gifts" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Gifts</div>
+        <div class="chip" data-val="Airtime or phone" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Airtime or phone</div>
+        <div class="chip" data-val="Transport" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Transport</div>
+        <div class="chip" data-val="Drugs or alcohol" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Drugs or alcohol</div>
+        <div class="chip" data-val="Protection" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Protection</div>
+        <div class="chip" data-val="Employment" onclick="selectChip(this,'exchangeWhat',false);calcScore()">Employment</div>
         <div class="chip" data-val="Other" onclick="selectChip(this,'exchangeWhat',false);toggleOtherInput(this,'ew-other-text')">Other</div>
       </div>
       <input type="text" id="ew-other-text" class="other-input" placeholder="Please specify...">
@@ -403,15 +403,25 @@ function calcScore(){
   if(getChipVal('takenAway',true)==='Yes') score+=2;
   var exc = getChipVal('exchangePresent',true);
   if(exc==='Yes') score+=3;
+  var ewGroup = document.getElementById('exchangeWhat');
+  if(ewGroup){
+    ewGroup.querySelectorAll('.chip.active').forEach(function(c){
+      var v = c.getAttribute('data-val');
+      if(v && v !== 'Other') score+=1;
+    });
+  }
   var ben = getChipVal('whoBenefited',false);
   if(ben.indexOf('Offender gained financially')>=0||ben.indexOf('Third party')>=0) score+=3;
+  if(ben.indexOf('gratification only')>=0) score+=2;
   var drawn = getChipVal('howDrawn',false);
+  if(drawn.indexOf('Promised')>=0) score+=2;
   if(drawn.indexOf('Deceived')>=0||drawn.indexOf('manipulated')>=0) score+=2;
   if(drawn.indexOf('Dependent')>=0) score+=2;
+  if(drawn.indexOf('Physically forced')>=0) score+=3;
   var rec = getChipVal('recorded',true);
   if(rec==='Recorded only') score+=3;
   if(rec==='Recorded and distributed') score+=5;
-  if(exc==='No'&&rec!=='Recorded only'&&rec!=='Recorded and distributed'&&drawn.indexOf('forced')<0&&drawn.indexOf('manipulated')<0&&drawn.indexOf('Deceived')<0&&drawn.indexOf('Dependent')<0){
+  if(exc==='No'&&rec!=='Recorded only'&&rec!=='Recorded and distributed'&&drawn.indexOf('forced')<0&&drawn.indexOf('manipulated')<0&&drawn.indexOf('Deceived')<0&&drawn.indexOf('Dependent')<0&&drawn.indexOf('Promised')<0){
     flags.push('No exchange, no recording, and no coercion identified. This may be CSA rather than exploitation. Please review before submitting.');
   }
   var numEl=document.getElementById('scoreNum');
